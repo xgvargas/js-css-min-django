@@ -70,7 +70,7 @@ For the second block we have two .css files saved both in a single full merged f
 Once you update the work copy of your django project on your server all you have to do is:
 
 ```bash
-$python js-css-min.py
+$python jscssmin.py
 Processing block: my css
 Merging: tasks/static/tasks/css/fixtypeahead.css
 Merging: message/static/message/css/message.css
@@ -105,7 +105,7 @@ Using as a minifier module
 
 In another python script:
 ```python
-from js-css-min import jsMin, cssMin
+from jscssmin import jsMin, cssMin
 
 fulljstext = '<script>full code....</script>'
 fullcsstext = '<style>full styles...</style>'
