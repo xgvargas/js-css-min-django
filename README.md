@@ -117,6 +117,6 @@ cssMin(fullcsstext, 'path/to/min/style.css')
 Minifier
 --------
 
-This script uses the api provided by http://javascript-minifier.com/ to minify JS and CSS data. Thanks [@andychilton] for this api.
+This script uses the api provided by http://cssminifier.com and http://javascript-minifier.com/ to minify CSS and JS data. Thanks [@andychilton] for this api.
 
 [@andychilton]: http://twitter.com/andychilton 
