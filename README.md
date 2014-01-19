@@ -10,13 +10,15 @@ Example with a django project
 
 During development I simply use django tags like *{% url ... %}* and *{% static ... %}* on my .js and .css files to define dynamic url to views and images of my project. At this point the .js and .css are placed into the templates directory of my app so I can *{% include ... %}* it to my .html templates and have the tags rendered to final urls. Of course the js and css will appear inline with the HTML content. For development I think this is fine.
 
-On deploy you usually what all your javascript and styling to be in a external file.
+On deploy you usually want all your javascript and styling to be in a single external file.
 
 Here is how this script can help you with that:
 
 On my base.html template I usually have something like this:
 
 ```html
+<head>
+...
 {% if not debug %}
   <script src="{% static 'js/ceco.min.js' %}"></script>
 {% else %}
@@ -29,6 +31,8 @@ On my base.html template I usually have something like this:
     {% include 'message/message.js' %}
   </script>
 {% endif %}
+...
+</head>
 ```
 
 Then simply put this script on the same directory as manager.py. Edit the script to adjust your paths to settings.py and to every JS and CSS you whant to merge/minify. Like:
@@ -59,7 +63,7 @@ merger = {
     }
 ```
 
-Here we define a path to the django project and the settings.py file to use while rendering the template tags. *You only need to define those if you have tags inside .js or .css, if you don't then simply ignore both*
+Here we define a path to the django project and the settings.py file to use while rendering the template tags. *You only need to define those if you have tags inside .js or .css, if you don't then simply ignore both*.
 
 In this case we have two blocks, *my js* and *my css*.
 
@@ -92,8 +96,15 @@ $python manage.py collectstatic
 $touch /path/to/yourwsgi.wsgi
 ```
 
-Ok, this can change on your server but that the overall idea...
+Ok, this can change on your server but that's the overall idea...
 
+Also you can use the option *--images* to optimise **all** *.PNG* and *.JPG* present on the directory tree starting where you executed this script (usualy your django project root). Like:
+
+```bash
+$python jscssmin.py --images
+```
+
+This will save a copy of all original images with *".original"* appended to its name and a smaller (hopefully), version will be saved with the original name. This script will ignore every file that already have a *.original* version present. To force this script to process every single file again use the option *--images-full*.
 
 Non django project
 ------------------
@@ -105,18 +116,32 @@ Using as a minifier module
 
 In another python script:
 ```python
-from jscssmin import jsMin, cssMin
+import  jscssmin
 
+#minify JS from text to file
 fulljstext = '<script>full code....</script>'
-fullcsstext = '<style>full styles...</style>'
+jscssmin.jsMin(fulljstext, 'path/to/min/code.js')
 
-jsMin(fulljstext, 'path/to/min/code.js')
-cssMin(fullcsstext, 'path/to/min/style.css')
+#minify CSS from text to file
+fullcsstext = '<style>full styles...</style>'
+jscssmin.cssMin(fullcsstext, 'path/to/min/style.css')
+
+#minify a JPG image
+jscssmin.jpgMin('path/to/image.jpg')
+
+#minify a PNG image
+jscssmin.pngMin('path/to/image.png')
 ```
+
+All four functions used above are only helper to call some online minifer api. See below. This script does not minify JS or CSS by itself, so you need to be online to execute this with success.
 
 Minifier
 --------
 
-This script uses the api provided by http://cssminifier.com and http://javascript-minifier.com/ to minify CSS and JS data. Thanks [@andychilton] for this api.
+This script uses some online api provided by [@andychilton] for all minify action:
++ http://javascript-minifier.com
++ http://cssminifier.com
++ http://pngcrush.com
++ http://jpgoptimiser.com
 
-[@andychilton]: http://twitter.com/andychilton 
+[@andychilton]: http://twitter.com/andychilton
