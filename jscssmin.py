@@ -45,6 +45,16 @@ import mimetypes
 import random
 import string
 
+
+__author__ = 'Gustavo Vargas <xgvargas@gmail.com>'
+__all__ = [
+    'jsMin',
+    'cssMin',
+    'jpgMin',
+    'pngMin'
+]
+
+
 if merger.get('config'): #only imports django if we have a config file defined
     import re
     
@@ -330,6 +340,7 @@ if __name__ == '__main__':
         process(j)
     
     if img:
+        print '\nProcessing images'
         for root, dirs, files in os.walk(os.getcwd()):
             for f in files:
                 if f.endswith('.jpg'):
