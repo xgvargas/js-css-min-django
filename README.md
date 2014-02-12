@@ -5,7 +5,7 @@ This is a python script for automated merge and minify of JS and CSS files.
 
 Optionally it can parse django template tags embeded into css and js files.
 
-And, if you have [lesscpy](https://github.com/lesscpy/lesscpy) installed you can compiled .LESS to .CSS defore merging.
+And, if you have [lesscpy](https://github.com/lesscpy/lesscpy) installed, you can compiled .LESS to .CSS defore merging.
 
 Example with a django project
 -----------------------------
@@ -35,7 +35,8 @@ On my base.html template I usually have something like this:
 
 <!-- js -->
 {% if debug %}
-  <script type="text/javascript" src="{% static 'js/less-1.6.2.min.js' %}"></script> <!-- while debugging less -->
+  <!-- you need this only while debugging with less files -->
+  <script type="text/javascript" src="{% static 'js/less-1.6.2.min.js' %}"></script>
   <script src="{% static 'js/code1.js' %}"></script>
   <script src="{% static 'js/code2.js' %}"></script>
   <script>
@@ -52,6 +53,7 @@ On my base.html template I usually have something like this:
 </head>
 ```
 
+Check this [github](https://github.com/less/less.js) for the less compiler at client side.
 Then simply put this script on the same directory as manager.py. Edit the script to adjust your paths to settings.py and to every JS and CSS you whant to merge/minify. Like:
 
 ```python
@@ -67,7 +69,8 @@ merger = {
                                       'tasks/templates/tasks/codentemplate.js',
                                       'message/templates/message/moretemplatecode.js',
                                       ),
-                         #all static and rendered template JS will be merged, minified and saved to:
+                         #all static and rendered template JS will be merged,
+                         #minified and saved to:
                          'jsmin': 'static/js/deploycode.min.js'
                          },
 
@@ -76,7 +79,8 @@ merger = {
                           'less': ("message/static/message/css/message.less",
                                    "tasks/static/tasks/css/tasks.less"
                                    ),
-                          #the static css and the css compiled from less files are merged, minified and saved to:
+                          #the static css and the css compiled from less files are
+                          #merged, minified and saved to:
                           'cssmin': 'static/css/mydeploycss.min.css'
                           },
 
@@ -101,28 +105,34 @@ Once you update the work copy of your django project on your server all you have
 
 ```bash
 $python jscssmin.py
+Processing block: compact
+Compiling LESS: tasks/static/tasks/css/compactform.less
+Saving: tasks/static/tasks/css/compactform.css (0.17kB)
+
 Processing block: my css
 Merging: tasks/static/tasks/css/fixtypeahead.css
-Merging: message/static/message/css/message.css
-Saving: static/css/ceco.css (2.28kB)
-Minifying CSS...  Final: 73.7%
-Saving: static/css/ceco.min.css (1.68kB)
+Compiling LESS: message/static/message/css/message.less
+Compiling LESS: tasks/static/tasks/css/tasks.less
+Full merged size: 2.66kB
+Minifying CSS...  Final: 72.7%
+Saving: static/css/mydeploycss.min.css (1.93kB)
 
 Processing block: my js
-Merging: static/js/ceco.js
-Merging: static/js/xvalidator.js
-Merging template: tasks/templates/tasks/tasks.js
-Merging template: tasks/templates/tasks/cecomap.js
-Merging template: message/templates/message/message.js
-Saving: static.js.ceco.js (29.17kB)
-Minifying JS...  Final: 50.3%
-Saving: static.js.ceco.min.js (14.67kB)
+Merging: static/js/code1.js
+Merging: static/js/code2.js
+Merging template: tasks/templates/tasks/code3template.js
+Merging template: tasks/templates/tasks/codentemplate.js
+Merging template: message/templates/message/moretemplatecode.js
+Full merged size: 34.66kB
+Minifying JS...  Final: 50.1%
+Saving: static/js/deploycode.min.js (17.35kB)
+
 
 $python manage.py collectstatic
 $touch /path/to/yourwsgi.wsgi
 ```
 
-Ok, this can change on your server but that's the overall idea...
+Ok, this least step can change on your server, but that's the overall idea...
 
 Also you can use the option *--images* to optimise **all** *.PNG* and *.JPG* present on the directory tree starting where you executed this script (usualy your django project root). Like:
 
@@ -164,7 +174,7 @@ All four functions used above are only helper to call some online minifer api. S
 Minifier
 --------
 
-This script uses some online api provided by [@andychilton] for all minify action:
+This script uses some great online api provided by [@andychilton] for all minify action:
 + http://javascript-minifier.com
 + http://cssminifier.com
 + http://pngcrush.com
