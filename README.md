@@ -5,7 +5,7 @@ This is a python script for automated merge and minify of JS and CSS files.
 
 Optionally it can parse django template tags embeded into css and js files.
 
-And, if you have [lesscpy](https://github.com/lesscpy/lesscpy) installed, you can compiled .LESS to .CSS defore merging.
+And, if you have [lesscpy](https://github.com/lesscpy/lesscpy) installed, you can compiled .LESS to .CSS before merging.
 
 Example with a django project
 -----------------------------
@@ -53,8 +53,9 @@ On my base.html template I usually have something like this:
 </head>
 ```
 
-Check this [github](https://github.com/less/less.js) for the less compiler at client side.
-Then simply put this script on the same directory as manager.py. Edit the script to adjust your paths to settings.py and to every JS and CSS you whant to merge/minify. Like:
+Check out [less.js](https://github.com/less/less.js) for a less compiler at client side.
+
+Then simply put this script on the same directory as manager.py. Edit the script to adjust your paths to settings.py and to every JS and CSS/LESS you want to merge/minify. Like:
 
 ```python
 merger = {
@@ -95,13 +96,15 @@ merger = {
 
 Here we define a path to the django project and the settings.py file to use while rendering the template tags. *You only need to define those if you have tags inside .js or .css, if you don't then simply ignore both*.
 
-In this case we have two blocks, *my js* and *my css*.
+In this case we have three blocks, *my js*, *my css* and *compact*.
 
-For the first block all five javascript files are going to be merged, minified and saved to a single *cecoe.min.js* file. (Yes, the 3 files under *template* will be rendered before merge)
+For the first block all five javascript files are going to be merged, minified and saved to a single *deploycode.min.js* file. (Yes, the 3 files under *template* will be rendered before merge)
 
-For the second block we have two .css files saved both in a single full merged file and also a mini version of it.
+For the second block we have one .css and two .less files merged and minified.
 
-Once you update the work copy of your django project on your server all you have to do is:
+In our least block the compactform.less file is compiled to CSS and saved as is to a CSS file.
+
+Once you update/checkout the work copy of your django project on your server all you have to do is:
 
 ```bash
 $python jscssmin.py
@@ -127,14 +130,13 @@ Full merged size: 34.66kB
 Minifying JS...  Final: 50.1%
 Saving: static/js/deploycode.min.js (17.35kB)
 
-
 $python manage.py collectstatic
 $touch /path/to/yourwsgi.wsgi
 ```
 
 Ok, this least step can change on your server, but that's the overall idea...
 
-Also you can use the option *--images* to optimise **all** *.PNG* and *.JPG* present on the directory tree starting where you executed this script (usualy your django project root). Like:
+Also, you can use the option *--images* to optimise **all** *.PNG* and *.JPG* present on the directory tree starting where you executed this script (usualy your django project root). Like:
 
 ```bash
 $python jscssmin.py --images
@@ -169,7 +171,7 @@ jscssmin.jpgMin('path/to/image.jpg')
 jscssmin.pngMin('path/to/image.png')
 ```
 
-All four functions used above are only helper to call some online minifer api. See below. This script does not minify JS or CSS by itself, so you need to be online to execute this with success.
+All four functions used above are only helpers to call some online minifer api. See below. **This script does not minify JS or CSS by itself, so you need to be online to execute this with success**.
 
 Minifier
 --------
