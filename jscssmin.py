@@ -5,34 +5,38 @@
 
 #example of a merger dictionary for a django project:
 #
-#config key is optional but is necessary for template files
-#if config is efined then path is mandatory. Can be blank otherwise.
-#
-#all files from static and the rendered version of template files under
-#'my js' will be minified and saved to jsmin file.
-#
-#and all static files of 'my css' are going to be saved both full and
-#minified version.
+#config key is optional but is necessary for django template files
+#if config is defined then path is mandatory. Can be blank otherwise.
 #
 merger = {
-    'config': "ceco.settings",
-    'path': ("/home/transweb/apps_wsgi/ceco",
-             #"mode paths....",
+    'config': "myapp.settings",
+    'path': ("/home/username/apps_wsgi/myapp",
+             #"more paths....",
              ),
-    'blocks': {'my js': {'static': ('static/js/ceco.js',
-                                    'static/js/xvalidator.js',
+    'blocks': {'my js': {'static': ('static/js/code1.js',
+                                    'static/js/code2.js',
                                     ),
-                        'template': ('tasks/templates/tasks/tasks.js',
-                                     'tasks/templates/tasks/cecomap.js',
-                                     'message/templates/message/message.js',
-                                     ),
-                        'jsmin': 'static/js/ceco.min.js'
-                        },
+                         'template': ('tasks/templates/tasks/code3template.js',
+                                      'tasks/templates/tasks/codentemplate.js',
+                                      'message/templates/message/moretemplatecode.js',
+                                      ),
+                         #all static and rendered template JS will be merged, minified and saved to:
+                         'jsmin': 'static/js/deploycode.min.js'
+                         },
+
                'my css': {'static': ("tasks/static/tasks/css/fixtypeahead.css",
-                                     "message/static/message/css/message.css"
                                      ),
-                           'full': '',
-                           'cssmin': 'static/css/ceco.min.css'
+                          'less': ("message/static/message/css/message.less",
+                                   "tasks/static/tasks/css/tasks.less"
+                                   ),
+                          #the static css and the css compiled from less files are merged, minied and saved to:
+                          'cssmin': 'static/css/mydeploycss.min.css'
+                          },
+
+               'compact': {'less': ("tasks/static/tasks/css/compactform.less",
+                                    ),
+                           #the single less is compiled to css and saved as is to:
+                           'full': 'tasks/static/tasks/css/compactform.css'
                            },
                },
     }
@@ -44,6 +48,7 @@ import sys
 import mimetypes
 import random
 import string
+import commands
 
 
 __author__ = 'Gustavo Vargas <xgvargas@gmail.com>'
@@ -57,7 +62,7 @@ __all__ = [
 
 if merger.get('config'): #only imports django if we have a config file defined
     import re
-    
+
     for p in merger['path']: sys.path.append(p)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", merger['config'])
 
@@ -68,7 +73,7 @@ if merger.get('config'): #only imports django if we have a config file defined
         from django.conf import settings
     except:
         print 'Do you really have django well installed?'
-        sys.exit(1)    
+        sys.exit(1)
 
 
 def _read(file, mode='r'):
@@ -90,13 +95,13 @@ def _save(file, data, mode='w+'):
 def merge(obj):
     """
     Merge contents.
-    
+
     It does a simply merge of all files defined under 'static' key.
-    
+
     If you have JS or CSS file with embeded django tags like {% url ... %} or
     {% static ... %} you should declare them under 'template' key. This
     function will render them and append to the merged output.
-    
+
     To use the render option you have to define both 'config' and 'path' on
     merger dictionary.
     """
@@ -109,21 +114,29 @@ def merge(obj):
 
     if merger.get('config'): #only process templates if we have a config
         for f in obj.get('template', []):
-            print 'Merging template: {}'. format(f)
+            print 'Merging django template: {}'. format(f)
             t = _read(f)
-            
+
             if settings.FORCE_SCRIPT_NAME:
                 t = re.sub(r'\{%\s+url\b', settings.FORCE_SCRIPT_NAME+'{% url ', t)
-                
+
             merge += smart_str(get_template_from_string(t).render(Context({})))
-    
+
+    for f in obj.get('less', []):
+        print 'Compiling LESS: {}'.format(f)
+        ret, tmp = commands.getstatusoutput('lesscpy '+f)
+        if ret == 0:
+            merge += tmp
+        else:
+            print 'LESS to CSS failed for: {} (Do you have lesscpy installed?)'.format(f)
+
     return merge
 
 
 def jsMin(data, file):
     """
     Minify JS data and saves to file.
-    
+
     Data should be a string will whole JS content, and file will be
     overwrited if exists.
     """
@@ -146,7 +159,7 @@ def jsMin(data, file):
 def cssMin(data, file):
     """
     Minify CSS data and saves to file.
-    
+
     Data should be a string will whole CSS content, and file will be
     overwrited if exists.
     """
@@ -169,9 +182,9 @@ def cssMin(data, file):
 def jpgMin(file, force=False):
     """
     Try to optimise a JPG file.
-    
+
     The original will be saved at the same place with '.original' appended to its name.
-    
+
     Once a .original exists the function will ignore this file unless force is True.
     """
     if not os.path.isfile(file+'.original') or force:
@@ -193,14 +206,14 @@ def jpgMin(file, force=False):
     else:
         print 'Ignoring file: {}'.format(file)
     return 0
-    
-    
+
+
 def pngMin(file, force=False):
     """
     Try to optimise a PNG file.
-    
+
     The original will be saved at the same place with '.original' appended to its name.
-    
+
     Once a .original exists the function will ignore this file unless force is True.
     """
     if not os.path.isfile(file+'.original') or force:
@@ -303,7 +316,7 @@ def process(obj):
     """
     Process each block of the merger object.
     """
-    #merge all static and optional template files
+    #merge all static and templates and less files
     merged = merge(obj)
 
     #save the full file if name defined
@@ -312,16 +325,16 @@ def process(obj):
         _save(obj['full'], merged)
     else:
         print 'Full merged size: {:.2f}kB'.format(len(merged)/1024.0)
-        
+
     #minify js and save to file
     if obj.get('jsmin'):
-        jsMin(merged, obj['jsmin'])    
+        jsMin(merged, obj['jsmin'])
 
     #minify css and save to file
     if obj.get('cssmin'):
-        cssMin(merged, obj['cssmin'])    
+        cssMin(merged, obj['cssmin'])
 
-   
+
 if __name__ == '__main__':
     if len(sys.argv) > 2:
         print """Error! Use jscssmin.py [--images|--images-full]"""
@@ -334,11 +347,11 @@ if __name__ == '__main__':
         else:
             print """Error! Use jscssmin.py [--images|--images-full]"""
             exit(1)
-    
+
     for k, j in merger['blocks'].items():
         print '\nProcessing block: {}'.format(k)
         process(j)
-    
+
     if img:
         print '\nProcessing images'
         for root, dirs, files in os.walk(os.getcwd()):
