@@ -29,7 +29,7 @@ merger = {
                           'less': ("message/static/message/css/message.less",
                                    "tasks/static/tasks/css/tasks.less"
                                    ),
-                          #the static css and the css compiled from less files are merged, minied and saved to:
+                          #the static css and the css compiled from less files are merged, minified and saved to:
                           'cssmin': 'static/css/mydeploycss.min.css'
                           },
 

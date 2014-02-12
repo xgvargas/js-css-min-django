@@ -5,6 +5,8 @@ This is a python script for automated merge and minify of JS and CSS files.
 
 Optionally it can parse django template tags embeded into css and js files.
 
+And, if you have [lesscpy](https://github.com/lesscpy/lesscpy) installed you can compiled .LESS to .CSS defore merging.
+
 Example with a django project
 -----------------------------
 
@@ -19,18 +21,33 @@ On my base.html template I usually have something like this:
 ```html
 <head>
 ...
-{% if not debug %}
-  <script src="{% static 'js/ceco.min.js' %}"></script>
+<!-- css -->
+{% if debug %}
+  <link href="{% static 'tasks/css/fixtypeahead.css' %}" rel="stylesheet">
+  <link rel="stylesheet/less" type="text/css" href="{% static 'message/css/message.less' %}" />
+  <link rel="stylesheet/less" type="text/css" href="{% static 'tasks/css/tasks.less' %}" />
+  <link rel="stylesheet/less" type="text/css" href="{% static 'tasks/css/compactform.less' %}" />
 {% else %}
-  <script src="{% static 'js/ceco.js' %}"></script>
-  <script src="{% static 'js/xvalidator.js' %}"></script>
+  <link href="{% static 'tasks/css/compactform.css' %}" rel="stylesheet">
+  <link href="{% static 'css/mydeploycss.min.css' %}" rel="stylesheet">
+{% endif %}
+{% block extracss %}{% endblock %}
+
+<!-- js -->
+{% if debug %}
+  <script type="text/javascript" src="{% static 'js/less-1.6.2.min.js' %}"></script> <!-- while debugging less -->
+  <script src="{% static 'js/code1.js' %}"></script>
+  <script src="{% static 'js/code2.js' %}"></script>
   <script>
     <!-- js bellow contain django tags inside -->
-    {% include 'tasks/tasks.js' %}
-    {% include 'tasks/cecomap.js' %}
-    {% include 'message/message.js' %}
+    {% include 'tasks/code3template.js' %}
+    {% include 'tasks/codentemplate.js' %}
+    {% include 'message/moretemplatecode.js' %}
   </script>
+{% else %}
+  <script src="{% static 'js/deploycode.min.js' %}"></script>
 {% endif %}
+{% block extrajs %}{% endblock %}
 ...
 </head>
 ```
@@ -39,27 +56,36 @@ Then simply put this script on the same directory as manager.py. Edit the script
 
 ```python
 merger = {
-    'config': "ceco.settings",
-    'path': ("/home/transweb/apps_wsgi/ceco",
+    'config': "myapp.settings",
+    'path': ("/home/username/apps_wsgi/myapp",
              #"more paths....",
              ),
-    'blocks': {'my js': {'static': ('static/js/ceco.js',
-                                    'static/js/xvalidator.js',
+    'blocks': {'my js': {'static': ('static/js/code1.js',
+                                    'static/js/code2.js',
                                     ),
-                        'template': ('tasks/templates/tasks/tasks.js',
-                                     'tasks/templates/tasks/cecomap.js',
-                                     'message/templates/message/message.js',
-                                     ),
-                        'jsmin': 'static/js/ceco.min.js'
-                        },
+                         'template': ('tasks/templates/tasks/code3template.js',
+                                      'tasks/templates/tasks/codentemplate.js',
+                                      'message/templates/message/moretemplatecode.js',
+                                      ),
+                         #all static and rendered template JS will be merged, minified and saved to:
+                         'jsmin': 'static/js/deploycode.min.js'
+                         },
+
                'my css': {'static': ("tasks/static/tasks/css/fixtypeahead.css",
-                                     "message/static/message/css/message.css"
                                      ),
-                           'full': 'static/css/ceco.css',
-                           'cssmin': 'static/css/ceco.min.css'
-                           }
-                #other blocks as you need...
-               }
+                          'less': ("message/static/message/css/message.less",
+                                   "tasks/static/tasks/css/tasks.less"
+                                   ),
+                          #the static css and the css compiled from less files are merged, minified and saved to:
+                          'cssmin': 'static/css/mydeploycss.min.css'
+                          },
+
+               'compact': {'less': ("tasks/static/tasks/css/compactform.less",
+                                    ),
+                           #the single less is compiled to css and saved as is to:
+                           'full': 'tasks/static/tasks/css/compactform.css'
+                           },
+               },
     }
 ```
 
