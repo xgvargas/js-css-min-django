@@ -56,42 +56,38 @@ On my base.html template I usually have something like this:
 Check out [less.js](https://github.com/less/less.js) for a less compiler at client side.
 
 Then simply put this script on the same directory as manager.py. Edit the script to adjust your paths to settings.py and to every JS and CSS/LESS you want to merge/minify. Like:
+Create a file named *jscssmin.yaml* next to your manage.py (if using django, otherwire put this file n your root). Here's a example:
 
-```python
-merger = {
-    'config': "myapp.settings",
-    'path': ("/home/username/apps_wsgi/myapp",
-             #"more paths....",
-             ),
-    'blocks': {'my js': {'static': ('static/js/code1.js',
-                                    'static/js/code2.js',
-                                    ),
-                         'template': ('tasks/templates/tasks/code3template.js',
-                                      'tasks/templates/tasks/codentemplate.js',
-                                      'message/templates/message/moretemplatecode.js',
-                                      ),
-                         #all static and rendered template JS will be merged,
-                         #minified and saved to:
-                         'jsmin': 'static/js/deploycode.min.js'
-                         },
-
-               'my css': {'static': ("tasks/static/tasks/css/fixtypeahead.css",
-                                     ),
-                          'less': ("message/static/message/css/message.less",
-                                   "tasks/static/tasks/css/tasks.less"
-                                   ),
-                          #the static css and the css compiled from less files are
-                          #merged, minified and saved to:
-                          'cssmin': 'static/css/mydeploycss.min.css'
-                          },
-
-               'compact': {'less': ("tasks/static/tasks/css/compactform.less",
-                                    ),
-                           #the single less is compiled to css and saved as is to:
-                           'full': 'tasks/static/tasks/css/compactform.css'
-                           },
-               },
-    }
+```yaml
+---
+config: myapp.settings
+path:
+    - /home/username/apps_wsgi/myapp
+    #more path as you need
+blocks:
+    my js:
+        static:
+            - static/js/code1.js
+            - static/js/code2.js
+        template:
+            - tasks/templates/tasks/code3template.js
+            - tasks/templates/tasks/codentemplate.js
+            - message/templates/message/moretemplatecode.js
+        #all static and rendered template JS will be merged, minified and saved to:
+        jsmin: static/js/deploycode.min.js
+    my css:
+        static:
+            - tasks/static/tasks/css/fixtypeahead.css
+        less:
+            - message/static/message/css/message.less
+            - tasks/static/tasks/css/tasks.less
+        #the static css and the css compiled from less files are merged, minified and saved to:
+        cssmin: static/css/mydeploycss.min.css
+    compact:
+        less:
+            - tasks/static/tasks/css/compactform.less
+        #the single less is compiled to css and saved as is to:
+        full: tasks/static/tasks/css/compactform.css
 ```
 
 Here we define a path to the django project and the settings.py file to use while rendering the template tags. *You only need to define those if you have tags inside .js or .css, if you don't then simply ignore both*.
@@ -107,7 +103,7 @@ In our least block the compactform.less file is compiled to CSS and saved as is 
 Once you update/checkout the work copy of your django project on your server all you have to do is:
 
 ```bash
-$python jscssmin.py
+$jscssmin
 Processing block: compact
 Compiling LESS: tasks/static/tasks/css/compactform.less
 Saving: tasks/static/tasks/css/compactform.css (0.17kB)
