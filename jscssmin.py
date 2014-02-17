@@ -1,46 +1,5 @@
 #-*- coding: utf-8 -*-
 
-"""
-"""
-
-#example of a merger dictionary for a django project:
-#
-#config key is optional but is necessary for django template files
-#if config is defined then path is mandatory. Can be blank otherwise.
-#
-merger = {
-    'config': "myapp.settings",
-    'path': ("/home/username/apps_wsgi/myapp",
-             #"more paths....",
-             ),
-    'blocks': {'my js': {'static': ('static/js/code1.js',
-                                    'static/js/code2.js',
-                                    ),
-                         'template': ('tasks/templates/tasks/code3template.js',
-                                      'tasks/templates/tasks/codentemplate.js',
-                                      'message/templates/message/moretemplatecode.js',
-                                      ),
-                         #all static and rendered template JS will be merged, minified and saved to:
-                         'jsmin': 'static/js/deploycode.min.js'
-                         },
-
-               'my css': {'static': ("tasks/static/tasks/css/fixtypeahead.css",
-                                     ),
-                          'less': ("message/static/message/css/message.less",
-                                   "tasks/static/tasks/css/tasks.less"
-                                   ),
-                          #the static css and the css compiled from less files are merged, minified and saved to:
-                          'cssmin': 'static/css/mydeploycss.min.css'
-                          },
-
-               'compact': {'less': ("tasks/static/tasks/css/compactform.less",
-                                    ),
-                           #the single less is compiled to css and saved as is to:
-                           'full': 'tasks/static/tasks/css/compactform.css'
-                           },
-               },
-    }
-
 #-------------------------------------------------------------------------
 import urllib2, urllib
 import os
@@ -49,32 +8,19 @@ import mimetypes
 import random
 import string
 import commands
+import yaml
 
 
 __author__ = 'Gustavo Vargas <xgvargas@gmail.com>'
+__version_info__ = ('0', '3', '0')
+__version__ = '.'.join(__version_info__)
 __all__ = [
     'jsMin',
     'cssMin',
     'jpgMin',
-    'pngMin'
+    'pngMin',
+    'process'
 ]
-
-
-if merger.get('config'): #only imports django if we have a config file defined
-    import re
-
-    for p in merger['path']: sys.path.append(p)
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", merger['config'])
-
-    try:
-        from django.template.loader import get_template_from_string
-        from django.template.base import Context
-        from django.utils.encoding import smart_str
-        from django.conf import settings
-    except:
-        print 'Do you really have django well installed?'
-        sys.exit(1)
-
 
 def _read(file, mode='r'):
     """
@@ -112,7 +58,30 @@ def merge(obj):
         print 'Merging: {}'. format(f)
         merge += _read(f)
 
-    if merger.get('config'): #only process templates if we have a config
+    def doless(f):
+        print 'Compiling LESS: {}'.format(f)
+        ret, tmp = commands.getstatusoutput('lesscpy '+f)
+        if ret == 0:
+            return tmp
+        else:
+            print 'LESS to CSS failed for: {} (Do you have lesscpy installed?)'.format(f)
+        return ''
+
+    if merger.get('config'): #only imports django if we have a config file defined
+        import re
+
+        for p in merger['path']: sys.path.append(p)
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", merger['config'])
+
+        try:
+            from django.template.loader import get_template_from_string
+            from django.template.base import Context
+            from django.utils.encoding import smart_str
+            from django.conf import settings
+        except:
+            print 'Do you really have django well installed?'
+            sys.exit(1)
+
         for f in obj.get('template', []):
             print 'Merging django template: {}'. format(f)
             t = _read(f)
@@ -120,15 +89,16 @@ def merge(obj):
             if settings.FORCE_SCRIPT_NAME:
                 t = re.sub(r'\{%\s+url\b', settings.FORCE_SCRIPT_NAME+'{% url ', t)
 
-            merge += smart_str(get_template_from_string(t).render(Context({})))
+            tmp = smart_str(get_template_from_string(t).render(Context({})))
+
+            if f.endswith('.less'):
+                pass
+                #TODO compilar tmp para css
+
+            merge += tmp
 
     for f in obj.get('less', []):
-        print 'Compiling LESS: {}'.format(f)
-        ret, tmp = commands.getstatusoutput('lesscpy '+f)
-        if ret == 0:
-            merge += tmp
-        else:
-            print 'LESS to CSS failed for: {} (Do you have lesscpy installed?)'.format(f)
+        merge += doless(f)
 
     return merge
 
@@ -333,30 +303,3 @@ def process(obj):
     #minify css and save to file
     if obj.get('cssmin'):
         cssMin(merged, obj['cssmin'])
-
-
-if __name__ == '__main__':
-    if len(sys.argv) > 2:
-        print """Error! Use jscssmin.py [--images|--images-full]"""
-        exit(1)
-
-    img, imgfull = False, False
-    if len(sys.argv) == 2:
-        if sys.argv[1] == '--images': img = True
-        elif sys.argv[1] == '--images-full': img, imgfull = True, True
-        else:
-            print """Error! Use jscssmin.py [--images|--images-full]"""
-            exit(1)
-
-    for k, j in merger['blocks'].items():
-        print '\nProcessing block: {}'.format(k)
-        process(j)
-
-    if img:
-        print '\nProcessing images'
-        for root, dirs, files in os.walk(os.getcwd()):
-            for f in files:
-                if f.endswith('.jpg'):
-                    jpgMin(os.path.join(root, f), imgfull)
-                elif f.endswith('.png'):
-                    pngMin(os.path.join(root, f), imgfull)

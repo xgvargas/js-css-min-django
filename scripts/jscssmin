@@ -1,0 +1,35 @@
+#!python
+
+
+if len(sys.argv) > 2:
+    print """Error! Use jscssmin.py [--images|--images-full]"""
+    exit(1)
+
+img, imgfull = False, False
+if len(sys.argv) == 2:
+    if sys.argv[1] == '--images': img = True
+    elif sys.argv[1] == '--images-full': img, imgfull = True, True
+    else:
+        print """Error! Use jscssmin.py [--images|--images-full]"""
+        exit(1)
+
+try:
+    with open('jscssmin.yaml', 'r') as fh:
+        global merger
+        merger = yaml.load(fh.read())
+except:
+    print "Oops! File 'jscssmin.yaml' is not present in current directory!"
+    exit(2)
+
+for k, j in merger['blocks'].items():
+    print '\nProcessing block: {}'.format(k)
+    process(j)
+
+if img:
+    print '\nProcessing images'
+    for root, dirs, files in os.walk(os.getcwd()):
+        for f in files:
+            if f.endswith('.jpg'):
+                jpgMin(os.path.join(root, f), imgfull)
+            elif f.endswith('.png'):
+                pngMin(os.path.join(root, f), imgfull)
