@@ -7,6 +7,15 @@ Optionally it can parse django template tags embeded into css and js files.
 
 And, if you have [lesscpy](https://github.com/lesscpy/lesscpy) installed, you can compiled .LESS to .CSS before merging.
 
+Installation
+------------
+
+```bash
+$pip install jscssmin --target $PYTHONPATH --install-option="--install-scripts=~/bin"
+```
+
+Be sure to point scripts to a place here you have write access.
+
 Example with a django project
 -----------------------------
 
