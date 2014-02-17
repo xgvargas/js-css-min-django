@@ -49,7 +49,7 @@ On my base.html template I usually have something like this:
   <script src="{% static 'js/code1.js' %}"></script>
   <script src="{% static 'js/code2.js' %}"></script>
   <script>
-    <!-- js bellow contain django tags inside -->
+    <!-- js bellow contains django tags inside -->
     {% include 'tasks/code3template.js' %}
     {% include 'tasks/codentemplate.js' %}
     {% include 'message/moretemplatecode.js' %}
@@ -64,14 +64,14 @@ On my base.html template I usually have something like this:
 
 Check out [less.js](https://github.com/less/less.js) for a less compiler at client side.
 
-Create a file named *jscssmin.yaml* next to your manage.py (if using django, otherwire put this file in your root). Here's a example:
+Create a file named *jscssmin.yaml* next to your manage.py (if using django, otherwise put this file in your root). Here's a example:
 
 ```yaml
 ---
 config: myapp.settings
 path:
     - /home/username/apps_wsgi/myapp
-    #more path as you need
+    #more paths as you need
 blocks:
     my js:
         static:
@@ -108,6 +108,8 @@ For the first block all five javascript files are going to be merged, minified a
 For the second block we have one .css and two .less files merged and minified.
 
 In our least block the compactform.less file is compiled to CSS and saved as is to a CSS file.
+
+Is up to you not to mix JS and CSS/LESS inside a single block.
 
 Once you update/checkout the work copy of your django project on your server all you have to do is:
 
@@ -152,7 +154,7 @@ This will save a copy of all original images with *".original"* appended to its 
 Non django project
 ------------------
 
-No secret: simply edit this script to remove the *config*, and define all static files you want to merge/minify. Without a defined *config* all files under *templates* are going to be ignorated.
+No secret: simply create a *jscssmin.yaml* file here there is no definition of *config*, and define all static files you want to merge/minify. Without a defined *config* all files under *templates* are going to be ignorated.
 
 Using as a minifier module
 --------------------------
@@ -176,7 +178,7 @@ jscssmin.jpgMin('path/to/image.jpg')
 jscssmin.pngMin('path/to/image.png')
 ```
 
-All four functions used above are only helpers to call some online minifer api. See below. **This script does not minify JS or CSS by itself, so you need to be online to execute this with success**.
+All four functions used above are only helpers to call some online minifer api. See below. **This script does not minify JS or CSS by itself, so you need to be online to execute it with success**.
 
 Minifier
 --------
