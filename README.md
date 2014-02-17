@@ -14,7 +14,7 @@ Installation
 $pip install jscssmin --target $PYTHONPATH --install-option="--install-scripts=~/bin"
 ```
 
-Be sure to point scripts to a place here you have write access.
+Be sure to point scripts to a place here you have write access **and** is in your path.
 
 Example with a django project
 -----------------------------
