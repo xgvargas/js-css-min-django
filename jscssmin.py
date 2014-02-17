@@ -12,7 +12,7 @@ import yaml
 
 
 __author__ = 'Gustavo Vargas <xgvargas@gmail.com>'
-__version_info__ = ('0', '3', '0')
+__version_info__ = ('0', '3', '3')
 __version__ = '.'.join(__version_info__)
 __all__ = [
     'jsMin',

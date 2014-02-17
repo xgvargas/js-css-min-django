@@ -1,5 +1,6 @@
 #!python
 
+import jscssmin
 
 if len(sys.argv) > 2:
     print """Error! Use jscssmin.py [--images|--images-full]"""
@@ -23,13 +24,13 @@ except:
 
 for k, j in merger['blocks'].items():
     print '\nProcessing block: {}'.format(k)
-    process(j)
+    jscssmin.process(j)
 
 if img:
     print '\nProcessing images'
     for root, dirs, files in os.walk(os.getcwd()):
         for f in files:
             if f.endswith('.jpg'):
-                jpgMin(os.path.join(root, f), imgfull)
+                jscssmin.jpgMin(os.path.join(root, f), imgfull)
             elif f.endswith('.png'):
-                pngMin(os.path.join(root, f), imgfull)
+                jscssmin.pngMin(os.path.join(root, f), imgfull)

@@ -7,7 +7,7 @@ import codecs
 import jscssmin
 
 
-with codecs.open('README.md', encoding='utf-8') as f:
+with codecs.open('README.txt', encoding='utf-8') as f:
     long_description = f.read()
 
 with open("requirements.txt", "r") as f:
@@ -22,9 +22,7 @@ setup(
     author='Gustavo vargas',
     author_email='xgvargas@gmail.com',
     url='https://github.com/xgvargas/js-css-min-django',
-    #packages=find_packages(exclude=['*test*']),
     py_modules = ['jscssmin'],
-    package_data={'': ['LICENSE']},
     scripts=['scripts/jscssmin'],
     install_requires=install_requires,
     classifiers=[
