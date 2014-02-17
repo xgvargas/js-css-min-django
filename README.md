@@ -87,6 +87,7 @@ blocks:
             - tasks/static/tasks/css/compactform.less
         #the single less is compiled to css and saved as is to:
         full: tasks/static/tasks/css/compactform.css
+...
 ```
 
 Here we define a path to the django project and the settings.py file to use while rendering the template tags. *You only need to define those if you have tags inside .js or .css, if you don't then simply ignore both*.

@@ -1,6 +1,9 @@
-#!python
+#! python
 
 import jscssmin
+import sys
+import os
+import yaml
 
 if len(sys.argv) > 2:
     print """Error! Use jscssmin.py [--images|--images-full]"""
@@ -15,14 +18,13 @@ if len(sys.argv) == 2:
         exit(1)
 
 try:
-    with open('jscssmin.yaml', 'r') as fh:
-        global merger
-        merger = yaml.load(fh.read())
+    with open(os.path.join(os.getcwd(), 'jscssmin.yaml'), 'r') as fh:
+        jscssmin.merger = yaml.load(fh.read())
 except:
     print "Oops! File 'jscssmin.yaml' is not present in current directory!"
     exit(2)
 
-for k, j in merger['blocks'].items():
+for k, j in jscssmin.merger['blocks'].items():
     print '\nProcessing block: {}'.format(k)
     jscssmin.process(j)
 
