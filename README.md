@@ -55,8 +55,7 @@ On my base.html template I usually have something like this:
 
 Check out [less.js](https://github.com/less/less.js) for a less compiler at client side.
 
-Then simply put this script on the same directory as manager.py. Edit the script to adjust your paths to settings.py and to every JS and CSS/LESS you want to merge/minify. Like:
-Create a file named *jscssmin.yaml* next to your manage.py (if using django, otherwire put this file n your root). Here's a example:
+Create a file named *jscssmin.yaml* next to your manage.py (if using django, otherwire put this file in your root). Here's a example:
 
 ```yaml
 ---
