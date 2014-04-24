@@ -33,9 +33,9 @@ On my base.html template I usually have something like this:
 <!-- css -->
 {% if debug %}
   <link href="{% static 'tasks/css/fixtypeahead.css' %}" rel="stylesheet">
-  <link rel="stylesheet/less" type="text/css" href="{% static 'message/css/message.less' %}" />
-  <link rel="stylesheet/less" type="text/css" href="{% static 'tasks/css/tasks.less' %}" />
-  <link rel="stylesheet/less" type="text/css" href="{% static 'tasks/css/compactform.less' %}" />
+  <link rel="stylesheet/less" type="text/css" href="{% static 'message/css/message.less' %}">
+  <link rel="stylesheet/less" type="text/css" href="{% static 'tasks/css/tasks.less' %}">
+  <link rel="stylesheet/less" type="text/css" href="{% static 'tasks/css/compactform.less' %}">
 {% else %}
   <link href="{% static 'tasks/css/compactform.css' %}" rel="stylesheet">
   <link href="{% static 'css/mydeploycss.min.css' %}" rel="stylesheet">
