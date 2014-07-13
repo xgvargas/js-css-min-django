@@ -49,7 +49,7 @@ On my base.html template I usually have something like this:
   <script src="{% static 'js/code1.js' %}"></script>
   <script src="{% static 'js/code2.js' %}"></script>
   <script>
-    <!-- js bellow contains django tags inside -->
+    // js bellow contains django tags inside
     {% include 'tasks/code3template.js' %}
     {% include 'tasks/codentemplate.js' %}
     {% include 'message/moretemplatecode.js' %}
