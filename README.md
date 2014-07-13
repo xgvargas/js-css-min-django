@@ -64,7 +64,7 @@ On my base.html template I usually have something like this:
 
 Check out [less.js](https://github.com/less/less.js) for a less compiler at client side.
 
-Create a file named *jscssmin.yaml* next to your manage.py (if using django, otherwise put this file in your root). Here's a example:
+Create a file named *jscssmin.yaml* next to your manage.py (if using django, otherwise put this file in your root). Here's an example:
 
 ```yaml
 ---

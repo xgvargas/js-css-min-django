@@ -29,11 +29,12 @@ def _read(file, mode='r'):
         return fh.read()
 
 
-def _save(file, data, mode='w+'):
+def _save(file, data, mode='w+', title=''):
     """
     Write all data to created file. Also overwrite previous file.
     """
     with open(file, mode) as fh:
+        fh.write(title)
         fh.write(data)
 
 
@@ -102,7 +103,7 @@ def merge(obj):
     return merge
 
 
-def jsMin(data, file):
+def jsMin(data, file, title):
     """
     Minify JS data and saves to file.
 
@@ -118,14 +119,14 @@ def jsMin(data, file):
         f.close()
         print 'Final: {:.1f}%'.format(100.0*len(response)/len(data))
         print 'Saving: {} ({:.2f}kB)'.format(file, len(response)/1024.0)
-        _save(file, response)
+        _save(file, response, title=title)
     except:
         print 'Oops!! Failed :('
         return 1
     return 0
 
 
-def cssMin(data, file):
+def cssMin(data, file, title):
     """
     Minify CSS data and saves to file.
 
@@ -141,7 +142,7 @@ def cssMin(data, file):
         f.close()
         print 'Final: {:.1f}%'.format(100.0*len(response)/len(data))
         print 'Saving: {} ({:.2f}kB)'.format(file, len(response)/1024.0)
-        _save(file, response)
+        _save(file, response, title=title)
     except:
         print 'Oops!! Failed :('
         return 1
@@ -288,17 +289,24 @@ def process(obj):
     #merge all static and templates and less files
     merged = merge(obj)
 
+    title = ''
+    if obj.get('title'):
+        title = '/*!\n * \n'
+        for l in obj.get('title').split('\n'):
+            title += ' * '+l+'\n'
+        title += ' */\n\n'
+
     #save the full file if name defined
     if obj.get('full'):
         print 'Saving: {} ({:.2f}kB)'.format(obj['full'], len(merged)/1024.0)
-        _save(obj['full'], merged)
+        _save(obj['full'], merged, title=title)
     else:
         print 'Full merged size: {:.2f}kB'.format(len(merged)/1024.0)
 
     #minify js and save to file
     if obj.get('jsmin'):
-        jsMin(merged, obj['jsmin'])
+        jsMin(merged, obj['jsmin'], title)
 
     #minify css and save to file
     if obj.get('cssmin'):
-        cssMin(merged, obj['cssmin'])
+        cssMin(merged, obj['cssmin'], title)
